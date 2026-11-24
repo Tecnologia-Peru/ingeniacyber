@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  test-acr:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,8 +23,13 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Verificar identidad Azure
-        run: az account show --output table
-
       - name: Autenticacion en ACR
         run: az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Construir imagen Docker
+        run: |
+          docker build -t ${{ vars.ACR_NAME }}.azurecr.io/ingeniacyber:v1 .
+
+      - name: Subir imagen al ACR
+        run: |
+          docker push ${{ vars.ACR_NAME }}.azurecr.io/ingeniacyber:v1
